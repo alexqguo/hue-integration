@@ -1,38 +1,27 @@
-const hue = require('node-hue-api');
 const creds = require('./credentials');
+const dashButton = require('node-dash-button');
+const hue = require('node-hue-api');
 const HueApi = hue.HueApi;
 const lightState = hue.lightState;
 
-const host = creds.host;
-const username = creds.macbookUsername;
-const api = new HueApi(host, username);
+// Setup APIs
+const api = new HueApi(creds.host, creds.username);
+const dash = dashButton(creds.dashAddress);
 
-// Get basic config
-// api.config((err, config) => {
-//     if (err) throw err;
-//     console.log(JSON.stringify(config));
-// });
-
-// Groups
-// "Living room" has the id of 1 and contains the three main living room lights
-
-// Default light state of 70% brightness
-const onLightState = lightState.create().on().bri(178);
+// Setup random shit
+const brightness = 178; // 70% brighntess
+const livingRoomGroupId = 1; // Group ID of my living room lights
 const offLightState = lightState.create().on(false);
+const onLightState = lightState.create().on().bri(brightness);
 
 // Generic display results callback
 function displayResult(result) {
     console.log(JSON.stringify(result, null, 2));
 }
 
-// Generic error callback
-function displayError(error) {
-    console.error(error);
-}
-
 function setLivingRoomLightState(lightState) {
-    api.setGroupLightState(1, lightState)
-        .catch(displayError)
+    api.setGroupLightState(livingRoomGroupId, lightState)
+        .catch((error) => { console.error(error) })
         .done();
 }
 
@@ -43,3 +32,7 @@ function turnLightsOn() {
 function turnLightsOff() {
     setLivingRoomLightState(offLightState);
 }
+
+dash.on('detected', () => {
+    // Toggle lights
+});
