@@ -30,6 +30,16 @@ function displayError(error) {
     console.error(error);
 }
 
-api.setGroupLightState(1, onLightState)
-    .catch(displayError)
-    .done();
+function setLivingRoomLightState(lightState) {
+    api.setGroupLightState(1, lightState)
+        .catch(displayError)
+        .done();
+}
+
+function turnLightsOn() {
+    setLivingRoomLightState(onLightState);
+}
+
+function turnLightsOff() {
+    setLivingRoomLightState(offLightState);
+}
