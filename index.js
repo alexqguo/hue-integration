@@ -6,7 +6,7 @@ const lightState = hue.lightState;
 
 // Setup APIs
 const api = new HueApi(creds.host, creds.username);
-const dash = dashButton(creds.dashAddress);
+// const dash = dashButton(creds.dashAddress);
 
 // Setup random shit
 const brightness = 178; // 70% brighntess
@@ -25,14 +25,17 @@ function setLivingRoomLightState(lightState) {
         .done();
 }
 
-function turnLightsOn() {
-    setLivingRoomLightState(onLightState);
+function controlLivingRoom() {
+    // getGroup isn't too slow, this is fine
+    api.getGroup(livingRoomGroupId)
+        .then((result) => {
+            let lightsAreOn = result && result.lastAction && result.lastAction.on;
+            setLivingRoomLightState(lightsAreOn ? offLightState : onLightState);
+        })
+        .catch((error) => { console.error(error) })
+        .done();
 }
 
-function turnLightsOff() {
-    setLivingRoomLightState(offLightState);
-}
-
-dash.on('detected', () => {
-    // Toggle lights
-});
+// dash.on('detected', () => {
+//     // Toggle lights
+// });
