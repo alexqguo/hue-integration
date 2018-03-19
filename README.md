@@ -1,5 +1,5 @@
 # Dash button hue interaction
-Basically a big ugly jumble of code but it's a home project so leave me alone. For some reason node-dash-button requires sudo which kinda sucks
+Basically a big ugly jumble of code but it's a home project so leave me alone
 
 Reference:
 * https://github.com/peter-murray/node-hue-api
