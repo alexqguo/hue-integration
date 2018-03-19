@@ -6,7 +6,7 @@ const lightState = hue.lightState;
 
 // Setup APIs
 const api = new HueApi(creds.host, creds.username);
-// const dash = dashButton(creds.dashAddress);
+const dash = dashButton(creds.dashAddress);
 
 // Setup random shit
 const brightness = 178; // 70% brighntess
@@ -36,6 +36,4 @@ function controlLivingRoom() {
         .done();
 }
 
-// dash.on('detected', () => {
-//     // Toggle lights
-// });
+dash.on('detected', controlLivingRoom);
