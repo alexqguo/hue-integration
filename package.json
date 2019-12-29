@@ -10,6 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "node-dash-button": "^0.6.1",
-    "node-hue-api": "^2.4.2"
+    "node-hue-api": "^4.0.0"
   }
 }

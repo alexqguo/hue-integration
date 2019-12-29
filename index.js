@@ -1,39 +1,35 @@
 const creds = require('./credentials');
-const dashButton = require('node-dash-button');
-const hue = require('node-hue-api');
-const HueApi = hue.HueApi;
-const lightState = hue.lightState;
+const v3 = require('node-hue-api').v3;
+const GroupLightState = v3.lightStates.GroupLightState;
+
+const LIVING_ROOM_GROUP_ID = 1; // Group ID of my living room lights
+const OFF_STATE = new GroupLightState().on(false);
+const ON_STATE = new GroupLightState().on(true).brightness(70);
+
+const action = process.argv[2];
+if (['on', 'off'].indexOf(action) === -1) {
+  console.error('Must specify "on" or "off" as an action via command line');
+  return;
+}
 
 // Setup APIs
-const api = new HueApi(creds.host, creds.username);
-const dash = dashButton(creds.dashAddress);
+(async function() {
+  const searchResults = await v3.discovery.nupnpSearch();
+  const host = searchResults[0].ipaddress;
+  const api = await v3.api.createLocal(host).connect(creds.username);
+  const group = await api.groups.getGroup(LIVING_ROOM_GROUP_ID);
 
-// Setup random shit
-const brightness = 178; // 70% brighntess
-const livingRoomGroupId = 1; // Group ID of my living room lights
-const offLightState = lightState.create().on(false);
-const onLightState = lightState.create().on().bri(brightness);
-
-// Generic display results callback
-function displayResult(result) {
-    console.log(JSON.stringify(result, null, 2));
-}
-
-function setLivingRoomLightState(lightState) {
-    api.setGroupLightState(livingRoomGroupId, lightState)
-        .catch((error) => { console.error(error) })
-        .done();
-}
-
-function controlLivingRoom() {
-    // getGroup isn't too slow, this is fine
-    api.getGroup(livingRoomGroupId)
-        .then((result) => {
-            let lightsAreOn = result && result.lastAction && result.lastAction.on;
-            setLivingRoomLightState(lightsAreOn ? offLightState : onLightState);
-        })
-        .catch((error) => { console.error(error) })
-        .done();
-}
-
-dash.on('detected', controlLivingRoom);
+  if (action === 'on') {
+    if (group.state.any_on === false) {
+      api.groups.setGroupState(LIVING_ROOM_GROUP_ID, ON_STATE);
+    } else {
+      console.warn('Lights are already on, no-op');
+    }
+  } else {
+    if (group.state.any_on === true) {
+      api.groups.setGroupState(LIVING_ROOM_GROUP_ID, OFF_STATE);
+    } else {
+      console.warn('Lights are already off, no-op');
+    }
+  }
+})();
