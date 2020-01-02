@@ -14,6 +14,7 @@ if (['on', 'off'].indexOf(action) === -1) {
 
 // Setup APIs
 (async function() {
+  console.log(new Date().toString());
   const searchResults = await v3.discovery.nupnpSearch();
   const host = searchResults[0].ipaddress;
   const api = await v3.api.createLocal(host).connect(creds.username);
