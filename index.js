@@ -1,7 +1,9 @@
+const AWS = require('aws-sdk');
 const creds = require('./credentials');
 const v3 = require('node-hue-api').v3;
-const GroupLightState = v3.lightStates.GroupLightState;
+require('dotenv').config();
 
+const GroupLightState = v3.lightStates.GroupLightState;
 const LIVING_ROOM_GROUP_ID = 1; // Group ID of my living room lights
 const OFF_STATE = new GroupLightState().on(false);
 const ON_STATE = new GroupLightState().on(true).brightness(70);
@@ -14,11 +16,37 @@ if (['on', 'off'].indexOf(action) === -1) {
 
 // Setup APIs
 (async function() {
-  console.log(new Date().toString());
+  const dateString = new Date().toString();
   const searchResults = await v3.discovery.nupnpSearch();
   const host = searchResults[0].ipaddress;
   const api = await v3.api.createLocal(host).connect(creds.username);
   const group = await api.groups.getGroup(LIVING_ROOM_GROUP_ID);
+
+  function sendSMS(message) {
+    const params = {
+        Message: message,
+        PhoneNumber: creds.phoneNumber,
+        MessageAttributes: {
+            'AWS.SNS.SMS.SenderID': {
+                'DataType': 'String',
+                'StringValue': 'Subject'
+            }
+        }
+    };
+
+    new AWS.SNS({ apiVersion: '2010-03-31' })
+      .publish(params)
+      .promise()
+      .then((data) => {
+        console.log(JSON.stringify({ MessageID: data.MessageId }));
+      })
+      .catch((err) => {
+        console.log(JSON.stringify({ Error: err }));
+      });
+  }
+
+  console.log(dateString);
+  sendSMS(`${dateString} -- Turning lights ${action}`);
 
   if (action === 'on') {
     if (group.state.any_on === false) {
