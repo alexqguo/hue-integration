@@ -8,6 +8,7 @@ if (['on', 'off'].indexOf(action) === -1) {
   console.error('Must specify "on" or "off" as an action via command line');
   return;
 }
+const noSMS = process.argv[3].toLowerCase() === 'nosms';
 
 // Setup APIs
 (async function() {
@@ -38,5 +39,5 @@ if (['on', 'off'].indexOf(action) === -1) {
 
   console.log(dateString);
   setLights(action);
-  sendSMS(`${dateString} -- Turning lights ${action}`);
+  !noSMS && sendSMS(`${dateString} -- Turning lights ${action}`);
 })();
