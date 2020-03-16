@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "on": "node index.js on",
-    "off": "node index.js off"
+    "off": "node index.js off",
+    "listen": "node listen.js"
   },
   "author": "",
   "license": "ISC",
